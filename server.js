@@ -15,12 +15,16 @@ app.use(bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(express.static("./resources/static/assets/uploads"));
+
 // init database
 require("./app/helpers/init-database.helper")();
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Social Media API" });
 });
+
+require("./app/routes/auth.routes")(app);
 
 const PORT = process.env.PORT || 8080;
 
