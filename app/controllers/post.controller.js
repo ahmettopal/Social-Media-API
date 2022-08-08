@@ -16,10 +16,34 @@ exports.createPost = async (req, res) => {
       userId: req.userId,
       image: /*"/uploads"*/ "/" + req.file.filename,
     });
-
     res.send({ post });
   } catch (error) {
     res.status(500).send({ message: err.message });
+  }
+};
+
+exports.likePost = async (req, res) => {
+  Like.create({
+    userId: req.userId,
+    postId: req.params.postId,
+  }).then((like) => {
+    res.send({ like });
+  }).catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.unlikePost = async (req, res) => {
+  try {
+    await Like.destroy({
+      where: {
+        userId: req.userId,
+        postId: req.params.postId,
+      },
+    });
+    res.status(200).send({ message: "Unliked Post" });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
   }
 };
 
@@ -28,26 +52,22 @@ exports.findPostById = async (req, res) => {
   return Post.findOne({
     where: { id: req.params.postId },
     include: [{ model: User, as: "user", attributes: ["avatar", "username"] }],
-  })
-    .then((post) => {
-      res.status(200).send({ post });
-    })
-    .catch((err) => {
-      console.log(">> Error while finding post: ", err);
-    });
+  }).then((post) => {
+    res.status(200).send({ post });
+  }).catch((err) => {
+    console.log(">> Error while finding post: ", err);
+  });
 };
 
 exports.deletePost = async (req, res) => {
   return Post.destroy(
     { where: { id: req.params.postId } },
     { include: ["comments", "likes"] }
-  )
-    .then((post) => {
-      res.status(200).send({ post });
-    })
-    .catch((err) => {
-      console.log(">> Error while deleting post: ", err);
-    });
+  ).then((post) => {
+    res.status(200).send({ post });
+  }).catch((err) => {
+    console.log(">> Error while deleting post: ", err);
+  });
 };
 
 exports.updatePost = async (req, res) => {
@@ -69,8 +89,7 @@ exports.updatePost = async (req, res) => {
           message: `Cannot update Post with id=${id}. Maybe Post was not found or req.body is empty!`,
         });
       }
-    })
-    .catch((err) => {
+    }).catch((err) => {
       res.status(500).send({
         message: "Error updating Post with id=" + id,
       });

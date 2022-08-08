@@ -20,9 +20,25 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.user = require("../models/user.model.js")(sequelize, Sequelize);
-db.role = require("../models/role.model.js")(sequelize, Sequelize);
+db.user = require("./user.model")(sequelize, Sequelize);
+db.role = require("./role.model")(sequelize, Sequelize);
 db.posts = require("./post.model")(sequelize, Sequelize);
+db.likes = require("./likes.model")(sequelize, Sequelize);
+
+
+db.posts.hasMany(db.likes, { as: "likes" });
+db.likes.belongsTo(db.posts, {
+  foreignKey: "postId",
+  as: "post",
+});
+
+db.likes.belongsTo(db.user, {
+  foreignKey: "userId",
+  as: "user",
+});
+db.user.hasMany(db.likes, {
+  as: "likes",
+});
 
 db.user.hasMany(db.posts, { as: "posts" });
 db.posts.belongsTo(db.user, {
