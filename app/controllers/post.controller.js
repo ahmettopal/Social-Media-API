@@ -95,3 +95,47 @@ exports.updatePost = async (req, res) => {
       });
     });
 };
+
+exports.createComment = async (req, res) => {
+  Comment.create({
+    text: req.body.text,
+    userId: req.userId,
+    postId: req.params.postId,
+  })
+    .then((comment) => {
+      res.send({ comment });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+};
+
+exports.getComments = async (req, res) => {
+  return Comment.findAll({
+    where: { postId: req.params.postId },
+    include: [
+      {
+        model: User,
+        as: "user",
+        attributes: ["avatar", "username"],
+        include: ["roles"],
+      },
+    ],
+  }).then((comments) => {
+    res.send({ comments });
+  }).catch((err) => {
+    console.log(">> Error while finding comments: ", err);
+  });
+};
+
+exports.deleteComment = async (req, res) => {
+  return Comment.destroy({
+    where: { id: req.params.commentId },
+  })
+    .then((comment) => {
+      res.send({ comment });
+    })
+    .catch((err) => {
+      console.log(">> Error while deleting comment: ", err);
+    });
+};

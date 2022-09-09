@@ -66,4 +66,23 @@ module.exports = function (app) {
     authJwt.isModeratorOrAdmin,
     controller.updatePost
   );
+
+  app.post(
+    "/post/:postId/comment",
+    authJwt.verifyToken,
+    authJwt.isModeratorOrAdminOrUser,
+    controller.createComment
+  );
+
+  app.get(
+    "/post/:postId/getComment",
+    controller.getComments
+  );
+
+  app.delete(
+    "/comment/delete/:commentId",
+    authJwt.verifyToken,
+    authJwt.isModeratorOrAdminOrUser,
+    controller.deleteComment
+  );
 };
